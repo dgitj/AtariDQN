@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import argparse
 import time
 import numpy as np
 import collections
@@ -10,6 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 COLAB = False
+CUDA = True
 
 if not COLAB:
     from lib import wrappers
@@ -32,7 +32,7 @@ EPSILON_DECAY = 10**5
 EPSILON_START = 1.0
 EPSILON_FINAL = 0.02
 
-MODEL = "PongNoFrameskip-v4-4.dat"
+MODEL = "PretrainedModels/PongNoFrameskip-v4-407.dat"
 LOAD_MODEL = True
 
 Experience = collections.namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
@@ -122,12 +122,13 @@ if __name__ == "__main__":
     if COLAB:
         """Default argparse does not work on colab"""
         class ColabArgParse():
-            def __init__(self, env, reward, model):
+            def __init__(self, cuda, env, reward, model):
+                self.cuda = cuda
                 self.env = env
                 self.reward = reward
                 self.model = model
 
-        args = ColabArgParse(ENV_NAME, MEAN_REWARD_BOUND, MODEL)
+        args = ColabArgParse(CUDA, ENV_NAME, MEAN_REWARD_BOUND, MODEL)
     else:
         parser = argparse.ArgumentParser()
         parser.add_argument("--cuda", default=True, action="store_true", help="Enable cuda")

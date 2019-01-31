@@ -28,7 +28,8 @@ if __name__ == "__main__":
     if args.record:
         env = gym.wrappers.Monitor(env, args.record)
     net = dqn_model.DQN(env.observation_space.shape, env.action_space.n)
-    net.load_state_dict(torch.load(args.model, map_location=lambda storage, loc: storage))
+    if args.model != "random":
+        net.load_state_dict(torch.load(args.model, map_location=lambda storage, loc: storage))
 
     state = env.reset()
     total_reward = 0.0
@@ -41,6 +42,8 @@ if __name__ == "__main__":
         state_v = torch.tensor(np.array([state], copy=False))
         q_vals = net(state_v).data.numpy()[0]
         action = np.argmax(q_vals)
+        if args.model == "random":
+            action = env.action_space.sample()
         c[action] += 1
         state, reward, done, _ = env.step(action)
         total_reward += reward
